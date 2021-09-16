@@ -47,11 +47,12 @@ else
 	do
 		glance image-download --file $f2 $f1
 		echo "Downloaded $f2"
+		image_list=${image_list}$f2,
 		sleep 2
 	done < os_image_file3.txt 3<os_image_file4.txt
 fi
 
-read -p "Transfer images to a remote server? (Warning: This will copy the ssh key to the remote server) " -n 1 -r
+read -p "Transfer images to a remote server? (Warning: This will copy the ssh key to the remote server) [y/N]" -n 1 -r
 echo    # (optional) move to a new line
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
@@ -61,11 +62,11 @@ then
 	echo "Copy ssh key to remote server"
 	ssh-copy-id $server_username@$server_ip || ( ssh-keygen && ssh-copy-id $server_username@$server_ip )
 
-	while IFS= read -r image
+	for image in $(echo $image_list | sed "s/,/ /g")
 	do
-	  scp $image $server_username@$server_ip:$server_path
+	  scp ${image} ${server_username}@${server_ip}:${server_path}
 	  sleep 1
-	done < os_image_file4.txt
+	done
 
 	read -p "Remove images from local server? " -n 1 -r
 	echo    # (optional) move to a new line
@@ -73,11 +74,7 @@ then
 	then
 	    cd ..
 	    rm -r $image_dir
-	else
-		rm -f os_image_file{1..4}.txt 
-		cd ..
 	fi
-else
-	rm -f os_image_file{1..4}.txt
-	cd ..
 fi
+	
+rm -f os_image_file{1..4}.txt &>/dev/null
