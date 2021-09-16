@@ -21,7 +21,8 @@ do
 done
 
 image_dir="images_bak"
-mkdir $image_dir && cd $image_dir || exit
+mkdir $image_dir &>/dev/null || true
+cd $image_dir || exit
 
 if [[ ! -z ${image_list+x} ]]
 then
