@@ -27,7 +27,8 @@ if [[ ! -z ${image_list+x} ]]
 then
 	for i in $(echo $image_list | sed "s/,/ /g")
 	do
-    	glance image-download --file $i $i
+		image_id=$(openstack image show $i | grep "| id " | cut -f 3 -d "|")
+    	glance image-download --file $i $image_id
 		echo "Downloaded $i"
 		sleep 2
 	done
